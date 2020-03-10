@@ -1,0 +1,41 @@
+---
+- name: get requirements
+  pip:
+    requirements: /tmp/aws-config/requirements.txt
+- name: get account id
+  script: "{{ playbook_dir.split('/')[0:-1]|join('/') }}/account_id/account_id.py --env_name={{ env_name }}"
+  args:
+    executable: python3
+  register: account_id
+- name: set account_id fact
+  set_fact:
+    account_id: "{{ account_id['stdout_lines'][0] }}"
+- name: assume iam role
+  sts_assume_role:
+    role_arn: "arn:aws:iam::{{ account_id }}:role/{{ iam_role }}"
+    role_session_name: "{{ iam_role }}"
+  register: assumed_role
+- name: create s3 bucket
+  s3_bucket:
+    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+    security_token: "{{ assumed_role.sts_creds.session_token }}"
+    name: "{{ tf_state_name }}"
+    region: "{{ aws_region }}"
+    state: present
+    versioning: yes
+    encryption: AES256
+    tags:
+      description: "S3 Remote Terraform State Store"
+- name: dynamodb
+  dynamodb_table:
+    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+    security_token: "{{ assumed_role.sts_creds.session_token }}"
+    name: "{{ tf_state_name }}"
+    region: "{{ aws_region }}"
+    state: present
+    hash_key_name: LockID
+    hash_key_type: STRING
+    read_capacity: 1
+    write_capacity: 1

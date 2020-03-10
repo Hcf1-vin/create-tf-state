@@ -1,0 +1,22 @@
+---
+- name: "copy base files to project directory"
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  pre_tasks:
+  - name: import vars files
+    include_vars:
+      dir: vars/
+      extensions:
+        - yml
+        - yaml
+  - name: set some facts
+    set_fact:
+      env_name: "{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+      tf_state_name: "terraform-state-{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+      project_path: "{{ playbook_dir.split('/')[0:-2]|join('/') }}/deployments/{{ project_name }}/{{env_type}}/{{aws_region}}"
+      aws_profile: "{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+  roles:
+    - role: copy_base
+
+    

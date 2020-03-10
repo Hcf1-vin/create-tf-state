@@ -1,0 +1,8 @@
+*.tfstate
+*.tfstate.backup
+*.terraform
+*.retry
+*_*.tf
+*_*.tfvars
+*terraform.tfstate
+*.DS_Store

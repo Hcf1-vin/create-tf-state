@@ -1,0 +1,14 @@
+---
+- name: "update aws config"
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  pre_tasks:
+  - name: import vars files
+    include_vars:
+      dir: vars/
+      extensions:
+        - yml
+        - yaml
+  roles:
+    - role: update_aws_config

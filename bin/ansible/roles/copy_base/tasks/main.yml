@@ -1,0 +1,56 @@
+---
+- name: check directory exists
+  stat:
+    path: "{{ project_path }}"
+  register: project_path_stat
+- name: create project dir 
+  file:
+    path: "{{ project_path }}"
+    state: directory
+  when: not project_path_stat.stat.exists
+- name: find all tf files
+  find:
+    paths: "{{ role_path }}/files/"
+    patterns: "*.tf"
+  register: file_list
+- name: copy base tf files to project
+  file:
+    src: "{{ item.path }}"
+    dest: "{{ project_path }}/_{{ (item.path.split('/')[-1]).split('.')[0] }}.tf"
+    state: link
+  with_items:
+    - "{{ file_list.files }}"
+- name: copy gitignore to project
+  file:
+    src: "{{ role_path }}/files/.gitignore"
+    dest: "{{ project_path }}/.gitignore"
+    state: link
+  with_items:
+    - "{{ file_list.files }}"
+- name: find all tf templates
+  find:
+    paths: "{{ role_path }}/templates/"
+    patterns: "*.tf.j2"
+  register: templates_list
+- name: generate base .tf files
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ project_path }}/_{{ (item.path.split('/')[-1]).split('.')[0] }}.tf"
+  with_items:
+      - "{{ templates_list.files }}"
+- name: find all tfvars templates
+  find:
+    paths: "{{ role_path }}/templates/"
+    patterns: "*.tfvars.j2"
+  register: templates_list
+- name: generate base .tfvars files
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ project_path }}/_{{ (item.path.split('/')[-1]).split('.')[0] }}.tfvars"
+  with_items:
+      - "{{ templates_list.files }}"
+- name: copy makefile
+  file:
+    src: "{{ playbook_dir.split('/')[0:-1]|join('/') }}/makefile"
+    dest: "{{ project_path }}/makefile"
+    state: link

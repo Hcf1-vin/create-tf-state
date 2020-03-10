@@ -1,0 +1,12 @@
+---
+- name: pull aws-config repo
+  git:
+    repo: 'https://github.com/Hcf1-vin/aws-config.git'
+    dest: /tmp/aws-config
+- name: get requirements
+  pip:
+    requirements: /tmp/aws-config/requirements.txt
+- name: Run aws_config.py
+  script: /tmp/aws-config/aws_config.py
+  args:
+    executable: python3

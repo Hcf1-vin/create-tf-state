@@ -1,0 +1,7 @@
+---
+- name: apply terraform
+  terraform:
+    project_path: "{{ project_path }}/"
+    state: present
+    force_init: true
+    variables_file: "{{ project_path }}/_base_vars.tfvars"

@@ -1,0 +1,5 @@
+email_domain: "example.com"
+email_alias: "aws"
+iam_role: "OrganizationAccountAccessRole"
+aws_region_exec: "eu-west-1"
+name_prefix: "company-a"

@@ -1,0 +1,35 @@
+---
+- name: "Apply terraform"
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  pre_tasks:
+  - name: import vars files
+    include_vars:
+      dir: vars/
+      extensions:
+        - yml
+        - yaml
+  - name: set some facts
+    set_fact:
+      env_name: "{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+      tf_state_name: "terraform-state-{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+      project_path: "{{ playbook_dir.split('/')[0:-2]|join('/') }}/deployments/{{ project_name }}/{{env_type}}/{{aws_region}}"
+      aws_profile: "{{ name_prefix }}-{{ project_name }}-{{env_type}}-{{aws_region}}"
+  - name: check directory exists
+    stat:
+      path: "{{ project_path }}"
+    register: project_path_stat
+  - name: exit message?
+    debug: 
+      msg: "no such project - {{ project_path }}"
+    when: not project_path_stat.stat.exists
+  - name: exit is dest_dir does not exist
+    meta: end_play
+    when: not project_path_stat.stat.exists
+  roles:
+    - role: update_aws_config
+    - role: copy_base
+    - role: terraform_apply
+
+    

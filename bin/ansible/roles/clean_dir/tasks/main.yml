@@ -1,0 +1,15 @@
+- name: get all base files in project
+  find:
+    paths: "{{ project_path }}/"
+    patterns: "*_*"
+  register: base_file_list
+- name: delete all base files from project
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items:
+    - "{{ base_file_list.files }}"
+- name: Ansible delete directory example
+  file:
+    path: "{{ project_path }}/.terraform"
+    state: absent
