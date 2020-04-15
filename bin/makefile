@@ -14,10 +14,10 @@ init: base
 	terraform init
 
 plan: base
-	terraform plan
+	terraform plan -var-file="_base_vars.tfvars"
 
 apply: base
-	terraform apply
+	terraform apply -var-file="_base_vars.tfvars"
 
 update: 
 	@-$(shell ansible-playbook ../../../../bin/ansible/update_config.yml > /tmp/play.log)

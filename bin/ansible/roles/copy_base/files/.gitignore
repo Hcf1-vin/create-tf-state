@@ -2,7 +2,7 @@
 *.tfstate.backup
 *.terraform
 *.retry
-*_*.tf
-*_*.tfvars
-*terraform.tfstate
+_*.tf
+_*.tfvars
+*.tfstate
 *.DS_Store
